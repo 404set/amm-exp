@@ -9,7 +9,7 @@ import zipfile
 from PyQt5.QtCore import QThread, pyqtSignal
 from PyQt5.QtGui import QIcon, QFont
 from PyQt5.QtSql import QSqlRelationalDelegate, QSqlQuery, QSqlRelationalTableModel, QSqlRelation, QSqlDatabase
-from PyQt5.QtWidgets import QGroupBox, QRadioButton, QLineEdit, QFileDialog, QProgressBar, QGridLayout, QMessageBox, QListWidget, QAbstractItemView, \
+from PyQt5.QtWidgets import QTableWidget, QGroupBox, QRadioButton, QLineEdit, QFileDialog, QProgressBar, QGridLayout, QMessageBox, QListWidget, QAbstractItemView, \
     QListWidgetItem, QLabel, QToolBar, QAction, QMainWindow, QWidget, QMenu, QMenuBar, QDialog, QPushButton, \
     QDialogButtonBox, QVBoxLayout, QHBoxLayout, QTextEdit, QTableView, QHeaderView, QComboBox, QSizePolicy
 from pyexcel_xlsx import save_data
@@ -1128,6 +1128,7 @@ class WatchNotes(QWidget):
         self.table_view.setModel(self.model)
         self.table_view.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
         self.table_view.verticalHeader().setSectionResizeMode(QHeaderView.Stretch)
+        self.table_view.setEditTriggers(QAbstractItemView.NoEditTriggers)  # Deshabilitar la edición
         self.table_view.setSelectionMode(QTableView.SingleSelection)
         self.table_view.setSelectionBehavior(QTableView.SelectRows)
 
@@ -1150,7 +1151,30 @@ class WatchNotes(QWidget):
         main_h.addLayout(main_v_box)
         main_h.addLayout(main_v_box_der)
 
+        #self.table_view.itemSelectionChanged.connect(self.show_selected_comment)
+        self.table_view.selectionModel().selectionChanged.connect(self.show_selected_comment)
+
         self.setLayout(main_h)
+
+    def show_selected_comment(self):
+        #selected_items = self.table_view.selectedItems()
+        selected_indexes = self.table_view.selectionModel().selectedIndexes()
+        selected_items = [index.data() for index in selected_indexes]
+        print(selected_items)
+        print(selected_indexes[0].sibling(selected_indexes[0].row(), 2).data())
+        if selected_indexes:
+            comment = selected_indexes[0].sibling(selected_indexes[0].row(), 2).data()
+            self.comments.setText(comment)
+            #self.label.setText(self.comments)
+        else:
+            pass
+            #self.label.setText("")
+
+        # if selected_items:
+        #     self.comments = selected_items[2].text()
+        #     self.label.setText(self.comments)
+        # else:
+        #     self.label.setText("")
 
     def addItem(self):
         """
