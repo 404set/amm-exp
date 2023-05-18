@@ -9,7 +9,7 @@ import zipfile
 from PyQt5.QtCore import QThread, pyqtSignal
 from PyQt5.QtGui import QIcon, QFont
 from PyQt5.QtSql import QSqlRelationalDelegate, QSqlQuery, QSqlRelationalTableModel, QSqlRelation, QSqlDatabase
-from PyQt5.QtWidgets import QFileDialog, QProgressBar, QGridLayout, QMessageBox, QListWidget, QAbstractItemView, \
+from PyQt5.QtWidgets import QGroupBox, QRadioButton, QLineEdit, QFileDialog, QProgressBar, QGridLayout, QMessageBox, QListWidget, QAbstractItemView, \
     QListWidgetItem, QLabel, QToolBar, QAction, QMainWindow, QWidget, QMenu, QMenuBar, QDialog, QPushButton, \
     QDialogButtonBox, QVBoxLayout, QHBoxLayout, QTextEdit, QTableView, QHeaderView, QComboBox, QSizePolicy
 from pyexcel_xlsx import save_data
@@ -967,19 +967,45 @@ class Settings(QDialog):
         """
         Set up the application's Settins GUI.
         """
-        self.setWindowTitle("Settings!")
-
+        self.setWindowTitle("Settings")
+        self.setMinimumSize(450, 200)
         self.btn = QDialogButtonBox.Cancel | QDialogButtonBox.Save
-
         self.buttonBox = QDialogButtonBox(self.btn)
         self.buttonBox.accepted.connect(self.saveSettings)
         self.buttonBox.rejected.connect(self.cancelSettings)
 
+        # Create group box to contain radio buttons
+        dir_gb = QGroupBox("Working directory:")
+
+        inputDir = QLabel("C:/...")
+        inputDir.setWordWrap(True)
+        btn_chDir = QPushButton("Change")
+        line_dir = QHBoxLayout()
+        line_dir.addWidget(inputDir, 3)
+        line_dir.addWidget(btn_chDir, 1)
+        dir_gb.setLayout(line_dir)
+
+
+        # Create group box to contain radio buttons
+        files_gb = QGroupBox("Generated Excel file(s):")
+
+        single_rb = QRadioButton("Single")
+        multi_rb = QRadioButton("Multi")
+        multi_rb.setChecked(True)
+
+        # Create and set layout for sex_gb widget
+        files_h_box = QHBoxLayout()
+        files_h_box.addWidget(single_rb)
+        files_h_box.addWidget(multi_rb)
+
+        files_gb.setLayout(files_h_box)
+
         self.layout = QVBoxLayout()
-        message = QLabel("Meter aqui working directory y single o multi files")
-        self.layout.addWidget(message)
+        self.layout.addWidget(dir_gb)
+        self.layout.addWidget(files_gb)
         self.layout.addWidget(self.buttonBox)
         self.setLayout(self.layout)
+
 
     def saveSettings(self):
         print("saving settings")
