@@ -977,11 +977,12 @@ class Settings(QDialog):
         # Create group box to contain radio buttons
         dir_gb = QGroupBox("Working directory:")
 
-        inputDir = QLabel("C:/...")
-        inputDir.setWordWrap(True)
+        self.inputDir = QLabel("C:/...")
+        self.inputDir.setWordWrap(True)
         btn_chDir = QPushButton("Change")
+        btn_chDir.clicked.connect(self.changeDir)
         line_dir = QHBoxLayout()
-        line_dir.addWidget(inputDir, 3)
+        line_dir.addWidget(self.inputDir, 3)
         line_dir.addWidget(btn_chDir, 1)
         dir_gb.setLayout(line_dir)
 
@@ -989,14 +990,14 @@ class Settings(QDialog):
         # Create group box to contain radio buttons
         files_gb = QGroupBox("Generated Excel file(s):")
 
-        single_rb = QRadioButton("Single")
-        multi_rb = QRadioButton("Multi")
-        multi_rb.setChecked(True)
+        self.single_rb = QRadioButton("Single")
+        self.multi_rb = QRadioButton("Multi")
+        self.multi_rb.setChecked(True)
 
         # Create and set layout for sex_gb widget
         files_h_box = QHBoxLayout()
-        files_h_box.addWidget(single_rb)
-        files_h_box.addWidget(multi_rb)
+        files_h_box.addWidget(self.single_rb)
+        files_h_box.addWidget(self.multi_rb)
 
         files_gb.setLayout(files_h_box)
 
@@ -1006,9 +1007,22 @@ class Settings(QDialog):
         self.layout.addWidget(self.buttonBox)
         self.setLayout(self.layout)
 
+    def changeDir(self):
+        options = QFileDialog.Options()
+        options |= QFileDialog.DontUseNativeDialog
+        directory = QFileDialog.getExistingDirectory(self, "Select Directory", options=options)
+        if directory:
+            self.inputDir.setText(directory)
 
     def saveSettings(self):
         print("saving settings")
+        if self.single_rb.isChecked():
+            mode = "Single"
+        else:
+            mode = "Multi"
+            # Aquí puedes guardar la configuración en función del modo seleccionado
+        print("Modo seleccionado:", mode)
+        self.accept()
 
     def cancelSettings(self):
         print("canceling settings")
