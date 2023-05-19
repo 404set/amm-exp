@@ -33,9 +33,97 @@ pathSinFileName = ""
 isExcelCreated = False
 # fin variables globales
 
+# Set up style sheet for the entire GUI
+style_sheet = '''
+    QWidget{
+    }
+    QMenuBar{
+        background-color: #232a40;;
+        font-size: 16px;
+    }
+    QLabel{
+        background-color: pink;
+        border-width: 2px;
+        border-style: solid;
+        border-radius: 8px;
+        border-color: purple;
+        color: black;
+        font-size: 16px;
+    }
+    QTextEdit{
+        background-color: pink;
+        border-width: 2px;
+        border-style: solid;
+        border-radius: 8px;
+        border-color: green;
+        padding-left: 10px;
+        color: black;  
+        font-size: 16px;
+    }
+     QLineEdit{
+        background-color: pink;
+        border-width: 2px;
+        border-style: solid;
+        border-radius: 8px;
+        border-color: green;
+        padding-left: 10px;
+        color: black;  
+        font-size: 16px;
+    }
+    QListWidget{
+        background-color: #a5a6b0;
+        border-width: 2px;
+        border-style: solid;
+        border-radius: 8px;
+        border-color: green;
+        padding-left: 10px;
+        color: #961A07;
+    }    
+    QTableView{
+        background-color: #a5a6b0;
+        border-width: 2px;
+        border-style: solid;
+        border-radius: 8px;
+        border-color: green;
+        padding-left: 10px;
+        color: #961A07;
+    }
+    QPushButton{
+        background-color: black;
+        border-radius: 8px;
+        padding: 6px;
+        color: #FFFFFF;
+        font-size: 18px;
+    }
+    QPushButton#initiate{
+        background-color: black;
+        border-radius: 8px;
+        padding: 6px;
+        color: #FFFFFF;
+        font-size: 18px;
+    }
 
+    QPushButton:pressed{
+        background-color: #C86354;
+        border-radius: 4px;
+        padding: 6px;
+        color: #DFD8D7
+    }
+    QPushButton:hover {
+        background-color: #0d1f54;
+        border: 1px solid #0062cc;
+    }
+    QProgressBar{
+        background-color: #C0C6CA;
+        color: #FFFFFF;
+        border: 1px solid grey;
+        border-radius: 8px;
+        padding: 3px;
+        height: 15px;
+        text-align: center;
+    }
 
-
+'''
 
 class MainGUI(QtWidgets.QWidget):
     """
@@ -53,7 +141,7 @@ class MainGUI(QtWidgets.QWidget):
         """
         Set up the application's GUI.
         """
-        self.setFixedSize(640, 280)
+        self.setFixedSize(640, 290)
         #self.setMinimumSize(640, 280)
         #self.setWindowTitle("AMM-Exploiter")
         self.setUpMainWindow()
@@ -73,6 +161,7 @@ class MainGUI(QtWidgets.QWidget):
         self.title2.setStyleSheet('color: gray; font-size: 18px;')
 
         self.subtitle = QtWidgets.QLabel("Selected file:\nNone")
+        self.subtitle.setWordWrap(True)
         #self.subtitle.setAlignment(QtCore.Qt.AlignCenter)
         self.subtitle.setStyleSheet('color: #3a9c3b; font-size: 16px;')
 
@@ -88,7 +177,14 @@ class MainGUI(QtWidgets.QWidget):
 
         # 3 buttons
         self.button = QtWidgets.QPushButton("Initiate")
+        self.button.setObjectName("initiate")
         self.button.setToolTip('Start processing')
+        self.button.setStyleSheet('''
+                                           QPushButton:hover {
+                                                background-color: #0d1f54;
+                                                border: 1px solid #0062cc;
+                                           }
+                                       ''')
         self.button.clicked.connect(self.start_task)
 
         #
@@ -137,6 +233,7 @@ class MainGUI(QtWidgets.QWidget):
 
         # creating a QListWidget
         self.list_widget = QListWidget(self)
+        self.list_widget.setObjectName("listw")
         self.list_widget.setSelectionMode(QAbstractItemView.SingleSelection)
         self.list_widget.itemSelectionChanged.connect(self.on_change)
 
@@ -148,48 +245,39 @@ class MainGUI(QtWidgets.QWidget):
         # 1 progress bar
         self.progress_bar = QProgressBar()
         self.progress_bar.setValue(0)
-        self.progress_bar.setStyleSheet('''
-                                             QProgressBar{
-                                                background-color: #C0C6CA;
-                                                color: #FFFFFF;
-                                                border: 1px solid grey;
-                                                padding: 3px;
-                                                height: 15px;
-                                                text-align: center;
-                                            }
-                                        ''')
+
 
         self.business_logic = BusinessLogic()
         self.worker_thread = WorkerThread(self.business_logic)
         self.worker_thread.progress_changed.connect(self.update_progress_bar)
         self.worker_thread.task_completed.connect(self.show_message_box)
 
-        self.setStyleSheet('''
-
-                            QWidget {
-                                background-color: #F5F5F5;
-                            }
-                            QLineEdit {
-                                background-color: white;
-                                border: 1px solid #ccc;
-                                border-radius: 5px;
-                                padding: 5px;
-                                font-size: 18px;
-                            }
-
-                            QPushButton {
-                                background-color:  #000000;
-                                border: 1px solid #007bff;
-                                border-radius: 5px;
-                                color: white;
-                                font-size: 18px;
-                                padding: 5px 10px;
-                            }
-                            QPushButton:hover {
-                                background-color: #0069d9;
-                                border: 1px solid #0062cc;
-                            }
-                        ''')
+        # self.setStyleSheet('''
+        #
+        #                     QWidget {
+        #                         background-color: #F5F5F5;
+        #                     }
+        #                     QLineEdit {
+        #                         background-color: white;
+        #                         border: 1px solid #ccc;
+        #                         border-radius: 5px;
+        #                         padding: 5px;
+        #                         font-size: 18px;
+        #                     }
+        #
+        #                     QPushButton {
+        #                         background-color:  #000000;
+        #                         border: 1px solid #007bff;
+        #                         border-radius: 5px;
+        #                         color: white;
+        #                         font-size: 18px;
+        #                         padding: 5px 10px;
+        #                     }
+        #                     QPushButton:hover {
+        #                         background-color: #0069d9;
+        #                         border: 1px solid #0062cc;
+        #                     }
+        #                 ''')
         # self.setLayout(layout)
 
         # Create layout and arrange widgets
@@ -900,6 +988,7 @@ class MainWindow(QMainWindow):
         menuFile.addAction(subSettings)
 
         menuTools = self.menuBar().addMenu('Tools')
+        menuTools.setObjectName("menutools")
         menuTools.setStyleSheet('font-size: 16px;')
 
         # Agregar subítem "Open"
@@ -1165,16 +1254,9 @@ class WatchNotes(QWidget):
         if selected_indexes:
             comment = selected_indexes[0].sibling(selected_indexes[0].row(), 2).data()
             self.comments.setText(comment)
-            #self.label.setText(self.comments)
         else:
             pass
-            #self.label.setText("")
 
-        # if selected_items:
-        #     self.comments = selected_items[2].text()
-        #     self.label.setText(self.comments)
-        # else:
-        #     self.label.setText("")
 
     def addItem(self):
         """
@@ -1498,6 +1580,7 @@ class NewNote(QWidget):
 
 if __name__ == '__main__':
     app = QtWidgets.QApplication(sys.argv)
+    app.setStyleSheet(style_sheet)
     #form = MainGUI()
     form = MainWindow()
     sys.exit(app.exec_())
