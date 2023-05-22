@@ -1172,13 +1172,14 @@ class WatchNotes(QWidget):
         self.model.setTable('accounts')
         self.model.setRelation(self.model.fieldIndex('country_id'), QSqlRelation('countries', 'id', 'country'))
 
-        self.model.setHeaderData(self.model.fieldIndex('id'), Qt.Horizontal, "ID")
-        self.model.setHeaderData(self.model.fieldIndex('employee_id'), Qt.Horizontal, "Employee ID")
-        self.model.setHeaderData(self.model.fieldIndex('first_name'), Qt.Horizontal, "First")
-        self.model.setHeaderData(self.model.fieldIndex('last_name'), Qt.Horizontal, "Last")
+        self.model.setHeaderData(self.model.fieldIndex('id'), Qt.Horizontal, "#ref")
+        self.model.setHeaderData(self.model.fieldIndex('employee_id'), Qt.Horizontal, "user_id")
+        self.model.setHeaderData(self.model.fieldIndex('first_name'), Qt.Horizontal, "last_mod")
+        self.model.setHeaderData(self.model.fieldIndex('last_name'), Qt.Horizontal, "task_id")
         # self.model.setHeaderData(self.model.fieldIndex('email'), Qt.Horizontal, "E-mail")
-        self.model.setHeaderData(self.model.fieldIndex('department'), Qt.Horizontal, "Dept.")
-        self.model.setHeaderData(self.model.fieldIndex('country_id'), Qt.Horizontal, "Country")
+        self.model.setHeaderData(self.model.fieldIndex('department'), Qt.Horizontal, "comment")
+        self.model.setHeaderData(self.model.fieldIndex('country_id'), Qt.Horizontal, "country")
+
 
         # Populate the model with data
         self.model.select()
@@ -1204,16 +1205,16 @@ class WatchNotes(QWidget):
         del_product_button.clicked.connect(self.deleteItem)
 
         # Set up sorting combobox
-        sorting_options = ["Sort by ID", "Sort by Employee ID", "Sort by First Name",
-                           "Sort by Last Name", "Sort by Department", "Sort by Country"]
+        sorting_options = ["Sort by ID", "Sort by USER ID", "Sort by LAST MODIFIED",
+                           "Sort by TASK ID"]
         sort_name_cb = QComboBox()
         sort_name_cb.addItems(sorting_options)
         sort_name_cb.currentTextChanged.connect(self.setSortingOrder)
 
         buttons_h_box = QHBoxLayout()
-        buttons_h_box.addWidget(add_product_button)
-        buttons_h_box.addWidget(del_product_button)
-        buttons_h_box.addStretch()
+        # buttons_h_box.addWidget(add_product_button)
+        # buttons_h_box.addWidget(del_product_button)
+        # buttons_h_box.addStretch()
         buttons_h_box.addWidget(sort_name_cb)
 
         # Widget to contain editing buttons
@@ -1295,13 +1296,13 @@ class WatchNotes(QWidget):
         """
         if text == "Sort by ID":
             self.model.setSort(self.model.fieldIndex('id'), Qt.AscendingOrder)
-        elif text == "Sort by Employee ID":
+        if text == "Sort by USER ID":
             self.model.setSort(self.model.fieldIndex('employee_id'), Qt.AscendingOrder)
-        elif text == "Sort by First Name":
+        elif text == "Sort by LAST MODIFIED":
             self.model.setSort(self.model.fieldIndex('first_name'), Qt.AscendingOrder)
-        elif text == "Sort by Last Name":
+        elif text == "Sort by TASK ID":
             self.model.setSort(self.model.fieldIndex('last_name'), Qt.AscendingOrder)
-        elif text == "Sort by Department":
+        elif text == "Sort by comment":
             self.model.setSort(self.model.fieldIndex('department'), Qt.AscendingOrder)
         elif text == "Sort by Country":
             self.model.setSort(self.model.fieldIndex('country'), Qt.AscendingOrder)
@@ -1324,7 +1325,7 @@ class NewNote(QWidget):
         """
         self.setMinimumSize(800, 600)
         self.setWindowTitle("Add new Comment")
-        self.createTables()
+        #self.createTables()
         self.createConnection()
         self.createTable()
         self.setupWidgets()
