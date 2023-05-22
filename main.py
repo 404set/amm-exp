@@ -1502,9 +1502,12 @@ class NewNote(QWidget):
         """
         icons_path = "icons"
 
-        title = QLabel("Write your new comment here -->")
+        title = QLabel("Write your new comment here:")
+        title2 = QLabel("Main table with data:")
         title.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
+        title2.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
         title.setStyleSheet("font: bold 20px")
+        title2.setStyleSheet("font: bold 20px")
 
         add_product_button = QPushButton("Save Comment")
         add_product_button.setIcon(QIcon(os.path.join(icons_path, "add_user.png")))
@@ -1512,7 +1515,7 @@ class NewNote(QWidget):
         #add_product_button.clicked.connect(self.addItem)
         add_product_button.clicked.connect(self.addNewRow)
 
-        del_product_button = QPushButton("Delete Row")
+        del_product_button = QPushButton("Delete Selected Row")
         del_product_button.setIcon(QIcon(os.path.join(icons_path, "trash_can.png")))
         del_product_button.setStyleSheet("padding: 10px")
         del_product_button.clicked.connect(self.deleteItem)
@@ -1550,13 +1553,15 @@ class NewNote(QWidget):
         main_h = QHBoxLayout()
 
         main_v_box = QVBoxLayout()
-        main_v_box.addWidget(title, Qt.AlignLeft)
-        main_v_box.addWidget(edit_buttons)
+        main_v_box.addWidget(title2)
         main_v_box.addWidget(self.table_view)
 
         main_v_box_der = QVBoxLayout()
         self.comments = QTextEdit()
+        main_v_box_der.addWidget(title, Qt.AlignCenter)
         main_v_box_der.addWidget(self.comments)
+        main_v_box_der.addWidget(edit_buttons)
+
 
         main_h.addLayout(main_v_box)
         main_h.addLayout(main_v_box_der)
