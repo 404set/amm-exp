@@ -6,7 +6,7 @@ import xlsxio
 from datetime import datetime
 import sys, traceback
 import zipfile
-from PyQt5.QtCore import QThread, pyqtSignal
+from PyQt5.QtCore import QThread, pyqtSignal, QSettings
 from PyQt5.QtGui import QIcon, QFont
 from PyQt5.QtSql import QSqlRelationalDelegate, QSqlQuery, QSqlRelationalTableModel, QSqlRelation, QSqlDatabase
 from PyQt5.QtWidgets import QTableWidget, QGroupBox, QRadioButton, QLineEdit, QFileDialog, QProgressBar, QGridLayout, QMessageBox, QListWidget, QAbstractItemView, \
@@ -1058,7 +1058,20 @@ class Settings(QDialog):
         Setting up GUI for settings window, it will be launched when clicking File>Settings
         """
         super().__init__()
+        self.settings = QSettings('AMM-Exploiter', 'v1')
+        print(self.settings.fileName())
+        try:
+            self.resize(self.settings.value('window size'))
+            self.move(self.settings.value('window position'))
+            self.inputDir.setText(self.settings.value('input dir'))
+
+        except:
+            pass
         self.initializeUI()
+
+    def closeEvent(self, event):
+        self.settings.setValue('window size', self.size())
+        self.settings.setValue('window position', self.pos())
 
     def initializeUI(self):
         """
@@ -1074,8 +1087,16 @@ class Settings(QDialog):
         # Create group box to contain radio buttons
         dir_gb = QGroupBox("Working directory:")
 
-        self.inputDir = QLabel("C:/...")
+        self.inputDir = QLabel("")
+        try:
+            if self.settings.value('input dir') != "":
+                self.inputDir.setText(self.settings.value('input dir'))
+            else:
+                self.inputDir = QLabel("")
+        except:
+            pass
         self.inputDir.setWordWrap(True)
+
         btn_chDir = QPushButton("Change")
         btn_chDir.clicked.connect(self.changeDir)
         line_dir = QHBoxLayout()
@@ -1089,7 +1110,16 @@ class Settings(QDialog):
 
         self.single_rb = QRadioButton("Single")
         self.multi_rb = QRadioButton("Multi")
-        self.multi_rb.setChecked(True)
+        try:
+            if self.settings.value('mode') == "Single":
+                self.single_rb.setChecked(True)
+            elif self.settings.value('mode') == "Multi":
+                self.multi_rb.setChecked(True)
+            else:
+                self.multi_rb.setChecked(True)
+        except:
+            pass
+
 
         # Create and set layout for sex_gb widget
         files_h_box = QHBoxLayout()
@@ -1110,6 +1140,7 @@ class Settings(QDialog):
         directory = QFileDialog.getExistingDirectory(self, "Select Directory", options=options)
         if directory:
             self.inputDir.setText(directory)
+            self.settings.setValue('input dir', directory)
 
     def saveSettings(self):
         print("saving settings")
@@ -1119,6 +1150,7 @@ class Settings(QDialog):
             mode = "Multi"
             # Aquí puedes guardar la configuración en función del modo seleccionado
         print("Modo seleccionado:", mode)
+        self.settings.setValue('mode', mode)
         self.accept()
 
     def cancelSettings(self):
@@ -1563,8 +1595,8 @@ class NewNote(QWidget):
         main_v_box_der.addWidget(edit_buttons)
 
 
-        main_h.addLayout(main_v_box)
-        main_h.addLayout(main_v_box_der)
+        main_h.addLayout(main_v_box, 7)
+        main_h.addLayout(main_v_box_der, 2)
 
         self.setLayout(main_h)
 
