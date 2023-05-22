@@ -50,6 +50,9 @@ style_sheet = '''
         color: black;
         font-size: 16px;
     }
+    QGroupBox{
+        font-size: 14px;
+    }
     QTextEdit{
         background-color: pink;
         border-width: 2px;
@@ -68,7 +71,7 @@ style_sheet = '''
         border-color: green;
         padding-left: 10px;
         color: black;  
-        font-size: 16px;
+        font-size: 17px;
     }
     QListWidget{
         background-color: #a5a6b0;
@@ -84,10 +87,17 @@ style_sheet = '''
         border-width: 2px;
         border-style: solid;
         border-radius: 8px;
-        border-color: green;
+        border-color: pink;
         padding-left: 10px;
         color: #961A07;
     }
+    QTableView::item:selected {
+    }
+    QTableView::item:selected{
+        background:rgb(135, 206, 255);
+        selection-background-color:rgb(333, 111, 255)
+    }
+
     QPushButton{
         background-color: black;
         border-radius: 8px;
@@ -141,7 +151,7 @@ class MainGUI(QtWidgets.QWidget):
         """
         Set up the application's GUI.
         """
-        self.setFixedSize(640, 290)
+        #self.setFixedSize(640, 290)
         #self.setMinimumSize(640, 280)
         #self.setWindowTitle("AMM-Exploiter")
         self.setUpMainWindow()
@@ -154,20 +164,16 @@ class MainGUI(QtWidgets.QWidget):
         # 3 text lines
         self.title = QtWidgets.QLabel("1.  File>Open Excel file")
         #self.title.setAlignment(QtCore.Qt.AlignCenter)
-        self.title.setStyleSheet('font-size: 18px;')
 
         self.title2 = QtWidgets.QLabel("2.  Enter TASK-ID to search")
         #self.title2.setAlignment(QtCore.Qt.AlignCenter)
-        self.title2.setStyleSheet('color: gray; font-size: 18px;')
 
         self.subtitle = QtWidgets.QLabel("Selected file:\nNone")
         self.subtitle.setWordWrap(True)
         #self.subtitle.setAlignment(QtCore.Qt.AlignCenter)
-        self.subtitle.setStyleSheet('color: #3a9c3b; font-size: 16px;')
 
         self.listtitle = QtWidgets.QLabel("Tasks Queue:")
         self.listtitle.setAlignment(QtCore.Qt.AlignCenter)
-        self.listtitle.setStyleSheet('font-size: 16px;')
 
         # 1 input box
         self.input_box = QtWidgets.QLineEdit()
@@ -971,7 +977,9 @@ class MainWindow(QMainWindow):
         self.mainForm = MainGUI()
         self.setCentralWidget(self.mainForm)
         self.setWindowTitle("AMM-Exploiter")
-        self.setFixedSize(640, 310)
+        #self.setFixedSize(640, 310)
+        self.setMinimumSize(640, 310)
+
 
         # Crear menú
         menuFile = self.menuBar()
@@ -1141,7 +1149,7 @@ class WatchNotes(QWidget):
         if QSqlDatabase.contains("qt_sql_default_connection"):
             return True  # Ya hay una conexión activa, no es necesario volver a conectar
         database = QSqlDatabase.addDatabase("QSQLITE")  # SQLite version 3
-        database.setDatabaseName("files/accounts.db")
+        database.setDatabaseName("../files/accounts.db")
         #database.setDatabaseName(r"\\gfa60005\intercambios\AlRa\db\accounts.db")
 
         if not database.open():
@@ -1250,9 +1258,9 @@ class WatchNotes(QWidget):
         selected_indexes = self.table_view.selectionModel().selectedIndexes()
         selected_items = [index.data() for index in selected_indexes]
         print(selected_items)
-        print(selected_indexes[0].sibling(selected_indexes[0].row(), 2).data())
+        print(selected_indexes[0].sibling(selected_indexes[0].row(), 4).data())
         if selected_indexes:
-            comment = selected_indexes[0].sibling(selected_indexes[0].row(), 2).data()
+            comment = selected_indexes[0].sibling(selected_indexes[0].row(), 4).data()
             self.comments.setText(comment)
         else:
             pass
@@ -1316,7 +1324,7 @@ class NewNote(QWidget):
         """
         self.setMinimumSize(800, 600)
         self.setWindowTitle("Add new Comment")
-        #self.createTables()
+        self.createTables()
         self.createConnection()
         self.createTable()
         self.setupWidgets()
@@ -1332,25 +1340,50 @@ class NewNote(QWidget):
         # Create connection to database. If db file does not exist,
         # a new db file will be created.
         database = QSqlDatabase.addDatabase("QSQLITE")  # SQLite version 3
-        database.setDatabaseName("files/accounts.db")
+        database.setDatabaseName("../files/accounts.db")
         #database.setDatabaseName(r"\\gfa60005\intercambios\AlRa\db\accounts.db")
 
         if not database.open():
             print("Unable to open data source file.")
             sys.exit(1)  # Error code 1 - signifies error
 
+        # query = QSqlQuery()
+        # # Erase database contents
+        # query.exec_("DROP TABLE accounts")
+        # query.exec_("DROP TABLE countries")
+
+        #
+        # Comprobación para la tabla "countries"
         query = QSqlQuery()
-        # Erase database contents
-        query.exec_("DROP TABLE accounts")
-        query.exec_("DROP TABLE countries")
+        query.prepare("SELECT name FROM sqlite_master WHERE type='table' AND name='countries'")
+        if query.exec_() and query.next():
+            # La tabla "countries" existe, podemos eliminarla
+            print("La tabla 'countries' existe")
+            query.exec_("DROP TABLE countries")
+        else:
+            # La tabla "countries" no existe, no es necesario eliminarla
+            print("La tabla 'countries' no existe")
+
+        # Comprobación para la tabla "accounts"
+        query = QSqlQuery()
+        query.prepare("SELECT name FROM sqlite_master WHERE type='table' AND name='accounts'")
+        if query.exec_() and query.next():
+            # La tabla "accounts" existe, podemos eliminarla
+            print("La tabla 'accounts' existe")
+            query.exec_("DROP TABLE accounts")
+        else:
+            # La tabla "accounts" no existe, no es necesario eliminarla
+            print("La tabla 'accounts' no existe")
+
+        #
 
         query.exec_("""CREATE TABLE accounts (
                              id INTEGER PRIMARY KEY AUTOINCREMENT UNIQUE NOT NULL,
-                             employee_id INTEGER NOT NULL,
+                             employee_id VARCHAR(30) NOT NULL,
                              first_name VARCHAR(30) NOT NULL,
                              last_name VARCHAR(30) NOT NULL,
 
-                             department VARCHAR(20) NOT NULL, 
+                             department VARCHAR(4096) NOT NULL, 
                              country_id VARCHAR(20) REFERENCES countries(id))""")
 
         # Positional binding to insert records into the database
@@ -1359,21 +1392,13 @@ class NewNote(QWidget):
                                department, country_id) 
                                VALUES (?, ?, ?, ?, ?)""")
 
-        first_names = ["Emma", "Olivia", "Ava", "Isabella", "Sophia",
-                       "Mia", "Charlotte", "Amelia", "Evelyn", "Abigail",
-                       "Valorie", "Teesha", "Jazzmin", "Liam", "Noah",
-                       "William", "James", "Logan", "Benjamin", "Mason",
-                       "Elijah", "Oliver", "Jason", "Lucas", "Michael"]
+        first_names = ["23-May-2023", "20-May-2023", "01-May-2023"]
 
-        last_names = ["Smith", "Johnson", "Williams", "Brown", "Jones",
-                      "Garcia", "Miller", "Davis", "Rodriguez", "Martinez",
-                      "Hernandez", "Lopez", "Gonzalez", "Wilson", "Anderson",
-                      "Thomas", "Taylor", "Moore", "Jackson", "Martin", "Lee",
-                      "Perez", "Thompson", "White", "Harris"]
+        last_names = ["00-00-00-000-000-A", "00-00-00-000-000-A", "00-00-00-000-000-A"]
 
         employee_ids = random.sample(range(1000, 2500), len(first_names))
 
-        countries = {"USA": 1, "India": 2, "China": 3, "France": 4, "Germany": 5}
+        countries = {"Spain": 1, "Germany": 2, "UK": 3, "Italy": 4}
         country_names = list(countries.keys())
         country_codes = list(countries.values())
 
@@ -1384,7 +1409,8 @@ class NewNote(QWidget):
             l_name = last_names.pop()
             # email = (l_name + f_name[0]).lower() + "@job.com"
             country_id = random.choice(country_codes)
-            dept = random.choice(departments)
+            #dept = random.choice(departments)
+            dept = ""
             employee_id = employee_ids.pop()
             query.addBindValue(employee_id)
             query.addBindValue(f_name)
@@ -1416,7 +1442,7 @@ class NewNote(QWidget):
             return True  # Ya hay una conexión activa, no es necesario volver a conectar
 
         database2 = QSqlDatabase.addDatabase("QSQLITE")  # SQLite version 3
-        database2.setDatabaseName("files/accounts.db")
+        database2.setDatabaseName("../files/accounts.db")
         # database.setDatabaseName(r"\\gfa60005\intercambios\AlRa\db\accounts.db")
 
         if not database2.open():
@@ -1458,13 +1484,13 @@ class NewNote(QWidget):
         self.model.setTable('accounts')
         self.model.setRelation(self.model.fieldIndex('country_id'), QSqlRelation('countries', 'id', 'country'))
 
-        self.model.setHeaderData(self.model.fieldIndex('id'), Qt.Horizontal, "ID")
-        self.model.setHeaderData(self.model.fieldIndex('employee_id'), Qt.Horizontal, "Employee ID")
-        self.model.setHeaderData(self.model.fieldIndex('first_name'), Qt.Horizontal, "First")
-        self.model.setHeaderData(self.model.fieldIndex('last_name'), Qt.Horizontal, "Last")
+        self.model.setHeaderData(self.model.fieldIndex('id'), Qt.Horizontal, "#ref")
+        self.model.setHeaderData(self.model.fieldIndex('employee_id'), Qt.Horizontal, "user_id")
+        self.model.setHeaderData(self.model.fieldIndex('first_name'), Qt.Horizontal, "last_mod")
+        self.model.setHeaderData(self.model.fieldIndex('last_name'), Qt.Horizontal, "task_id")
         # self.model.setHeaderData(self.model.fieldIndex('email'), Qt.Horizontal, "E-mail")
-        self.model.setHeaderData(self.model.fieldIndex('department'), Qt.Horizontal, "Dept.")
-        self.model.setHeaderData(self.model.fieldIndex('country_id'), Qt.Horizontal, "Country")
+        self.model.setHeaderData(self.model.fieldIndex('department'), Qt.Horizontal, "comment")
+        self.model.setHeaderData(self.model.fieldIndex('country_id'), Qt.Horizontal, "country")
 
         # Populate the model with data
         self.model.select()
@@ -1475,32 +1501,33 @@ class NewNote(QWidget):
         """
         icons_path = "icons"
 
-        title = QLabel("Add your new comment here ==>")
+        title = QLabel("Write your new comment here -->")
         title.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
         title.setStyleSheet("font: bold 20px")
 
-        add_product_button = QPushButton("Add Employee")
+        add_product_button = QPushButton("Save Comment")
         add_product_button.setIcon(QIcon(os.path.join(icons_path, "add_user.png")))
         add_product_button.setStyleSheet("padding: 10px")
-        add_product_button.clicked.connect(self.addItem)
+        #add_product_button.clicked.connect(self.addItem)
+        add_product_button.clicked.connect(self.addNewRow)
 
-        del_product_button = QPushButton("Delete")
+        del_product_button = QPushButton("Delete Row")
         del_product_button.setIcon(QIcon(os.path.join(icons_path, "trash_can.png")))
         del_product_button.setStyleSheet("padding: 10px")
         del_product_button.clicked.connect(self.deleteItem)
 
         # Set up sorting combobox
-        sorting_options = ["Sort by ID", "Sort by Employee ID", "Sort by First Name",
-                           "Sort by Last Name", "Sort by Department", "Sort by Country"]
-        sort_name_cb = QComboBox()
-        sort_name_cb.addItems(sorting_options)
-        sort_name_cb.currentTextChanged.connect(self.setSortingOrder)
+        # sorting_options = ["Sort by ID", "Sort by USER ID", "Sort by LAST MODIFIED",
+        #                    "Sort by TASK ID"]
+        # sort_name_cb = QComboBox()
+        # sort_name_cb.addItems(sorting_options)
+        # sort_name_cb.currentTextChanged.connect(self.setSortingOrder)
 
         buttons_h_box = QHBoxLayout()
         buttons_h_box.addWidget(add_product_button)
         buttons_h_box.addWidget(del_product_button)
         buttons_h_box.addStretch()
-        buttons_h_box.addWidget(sort_name_cb)
+        #buttons_h_box.addWidget(sort_name_cb)
 
         # Widget to contain editing buttons
         edit_buttons = QWidget()
@@ -1549,6 +1576,29 @@ class NewNote(QWidget):
             print(query.value(0))
             id = int(query.value(0))
 
+    def addNewRow(self):
+
+        """
+        Add a new record to the last row of the table.
+        """
+        # Ejecutamos una sentencia para insertar los datos
+        # De los campos de texto
+        id = 0
+        query = QSqlQuery()
+        query.exec_("SELECT MAX(id) FROM accounts")
+        if query.next() and not query.isNull(0):
+            id = int(query.value(0)) + 1
+        employee_id = "u12345"  # Valor fijo para la columna 'employee_id'
+        last_name = "22-May-2023"  # Valor fijo para la columna 'last_mod'
+        department = "00-00-00-000-000-A"  # Valor inicial vacío para la columna 'task-id'
+
+        # Obtener el valor del QLineEdit para la columna 'first_name'
+        comments = self.comments.toPlainText()
+        country = "1"
+        query = QSqlQuery()
+        query.exec_("insert into accounts values({0}, '{1}', '{2}', '{3}', '{4}', '{5}' )".format(id, employee_id, last_name, department, comments, country))
+        self.model.select()
+
     def deleteItem(self):
         """
         Delete an entire row from the table.
@@ -1564,13 +1614,13 @@ class NewNote(QWidget):
         """
         if text == "Sort by ID":
             self.model.setSort(self.model.fieldIndex('id'), Qt.AscendingOrder)
-        elif text == "Sort by Employee ID":
+        if text == "Sort by USER ID":
             self.model.setSort(self.model.fieldIndex('employee_id'), Qt.AscendingOrder)
-        elif text == "Sort by First Name":
+        elif text == "Sort by LAST MODIFIED":
             self.model.setSort(self.model.fieldIndex('first_name'), Qt.AscendingOrder)
-        elif text == "Sort by Last Name":
+        elif text == "Sort by TASK ID":
             self.model.setSort(self.model.fieldIndex('last_name'), Qt.AscendingOrder)
-        elif text == "Sort by Department":
+        elif text == "Sort by comment":
             self.model.setSort(self.model.fieldIndex('department'), Qt.AscendingOrder)
         elif text == "Sort by Country":
             self.model.setSort(self.model.fieldIndex('country'), Qt.AscendingOrder)
